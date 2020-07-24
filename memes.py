@@ -6,11 +6,14 @@ import discord
 from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix='?')
+client.remove_command('help')
+
 
 
 @client.event
 async def on_ready():
     print('Bot is ready.')
+    print('MemeMachine')
     await client.change_presence(activity=discord.Game(name="still in BETA!"))
 
 
@@ -63,33 +66,38 @@ async def test(ctx):
     await ctx.channel.purge(limit=1)
     await ctx.send('Test.')
 
+@client.command()
+async def ping(ctx) :
+    await ctx.send(f'Pong! `{round(client.latency * 1000)}ms`')
 
+@client.command()
+async def report(ctx, member : discord.Member, *, reason="Unspecified Reason"):
+    await member.send(f"You have been reported by {ctx.author} for {reason}")
+    gyro = client.get_user(445656896876183552)
+    tic = client.get_user(470261090798796800)
+    await gyro.send(f"{ctx.author} has reported {member} for {reason}.")
+    await tic.send(f"{ctx.author} has reported {member} for {reason}.")
+    warning = "Report filed. Admins will decide whether or not to take action."
+    await ctx.send(warning)
 
+@client.command(aliases=['cmds'])
+async def help(ctx) :
+    embed = discord.Embed(
+        colour=discord.Colour.blue(),
+        title="Help",
+        description='All commands.',
+        timestamp = ctx.message.created_at,
+    )
 
+    embed.set_author(name="Meme Machine", icon_url="https://tic.questionable.link/HzSDLl.png")
+    embed.add_field(name="?meme", value="Sends a meme.", inline=False)
+    embed.add_field(name="?pm [attach image/gif] ", value="Sends a meme to be reviewed.", inline=False)
+    embed.add_field(name="?am [message id]", value="Accepts a meme. Admins only.", inline=False)
+    embed.add_field(name="?ping", value="Test Command.", inline=False)
+    embed.add_field(name="?report", value="Reports a user to bot admins.", inline=False)
+    embed.add_field(name="?help", value="Shows this help message.", inline=False)
+    embed.set_footer(text=f"Made by GyroXI#7548 & Tic#0001 | {client.user.name}")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    await ctx.send(embed=embed)
 
 client.run('NzM2MTU4Mjc1NDY0MjAwMjA1.Xxqu0g.owKc5W59Y4-B8OPxMiau06EhjUM')
