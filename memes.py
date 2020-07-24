@@ -10,6 +10,10 @@ client.remove_command('help')
 
 
 
+def check_if_owner(ctx):
+    return ctx.message.author.id == 445656896876183552 or 470261090798796800
+
+
 @client.event
 async def on_ready():
     print('Bot is ready.')
@@ -17,38 +21,40 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="still in BETA!"))
 
 
-@client.command(aliases=["-postmeme", "-Pm", "-PM", "-Postmeme", "-PostMeme"])
+@client.command(aliases=["postmeme", "Pm", "PM", "Postmeme", "PostMeme"])
 async def pm(ctx):
     try:
         memelink = ctx.message.attachments[0].url
         with open(f"{ctx.message.id}.txt", "a") as f:
             f.write(f"{memelink}")
-        # await ctx.channel.purge(limit=1)
+        #await ctx.channel.purge(limit=1)
         await ctx.send("Your meme has been submitted!")
-        for channel in ctx.author.guild.channels:
-            if str(channel) == "pending-memes":
-                await channel.send(f"{ctx.author} has requested to publish a meme with the id of {ctx.message.id}")
+        gyro = client.get_user(445656896876183552)
+        tic = client.get_user(470261090798796800)
+        await gyro.send(f"{ctx.author} has requested to publish a meme with the id of {ctx.message.id} {memelink}")
+        await tic.send(f"{ctx.author} has requested to publish a meme with the id of {ctx.message.id} {memelink}")
     except Exception as e:
         print(e)
         await ctx.send("That is not a valid meme.")
 
 
 @client.command()
-@commands.has_permissions(manage_messages=True)
+@commands.check(check_if_owner)
 async def am(ctx, id):
-    try:
-        with open(f"{id}.txt", "r") as f:
-            url = f.read()
-        with open("memes.txt", "a") as f:
-            f.write(f"{url}\n")
-            await ctx.send("That meme has been accepted.")
-        os.remove(f"{id}.txt")
-    except Exception as e:
-        print(e)
-        await ctx.send("That meme couldn't be accepted.")
+
+        try:
+            with open(f"{id}.txt", "r") as f:
+                url = f.read()
+            with open("memes.txt", "a") as f:
+                f.write(f"{url}\n")
+                await ctx.send("That meme has been accepted.")
+            os.remove(f"{id}.txt")
+        except Exception as e:
+            print(e)
+            await ctx.send("That meme couldn't be accepted.")
 
 
-@client.command(aliases=["-Meme"])
+@client.command(aliases=["Meme"])
 async def meme(ctx):
     try:
         lines = open('memes.txt', "r").read().splitlines()
