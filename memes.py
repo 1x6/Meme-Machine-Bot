@@ -70,6 +70,8 @@ async def test(ctx):
 async def ping(ctx) :
     await ctx.send(f'Pong! `{round(client.latency * 1000)}ms`')
 
+# ------------------------------------- moderation
+
 @client.command()
 async def report(ctx, member : discord.Member, *, reason="Unspecified Reason"):
     await member.send(f"You have been reported by {ctx.author} for {reason}")
@@ -80,6 +82,33 @@ async def report(ctx, member : discord.Member, *, reason="Unspecified Reason"):
     warning = "Report filed. Admins will decide whether or not to take action."
     await ctx.send(warning)
 
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, member: discord.Member, *, reason=None) :
+    await member.ban(reason=reason)
+    await ctx.send(f'Banned {member.mention} https://media1.tenor.com/images/67b785d584e64306adb6b5fdb8f7378f/tenor.gif?itemid=17493177')
+    print('damn, ban hammer hit hard.')
+
+@ban.error
+async def on_command_error(ctx, error) :
+    if isinstance(error, commands.MissingRequiredArgument) :
+        await ctx.send('Who do you want me to ban?')
+
+@client.command()
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, member: discord.Member, *, reason=None) :
+    await member.kick(reason=reason)
+    await ctx.send(f'Kicked {member.mention}.')
+    print('lol kicked bro')
+
+
+@kick.error
+async def on_command_error(ctx, error) :
+    if isinstance(error, commands.MissingRequiredArgument) :
+        await ctx.send('Please input a user to kick.')
+
+
+# --------------------------------------------------------------------------- help cmd
 @client.command(aliases=['cmds'])
 async def help(ctx) :
     embed = discord.Embed(
@@ -95,9 +124,12 @@ async def help(ctx) :
     embed.add_field(name="?am [message id]", value="Accepts a meme. Admins only.", inline=False)
     embed.add_field(name="?ping", value="Test Command.", inline=False)
     embed.add_field(name="?report", value="Reports a user to bot admins.", inline=False)
+    embed.add_field(name="?kick", value="Kicks specified user.", inline=False)
+    embed.add_field(name="?ban", value="Bans specified user.", inline=False)
     embed.add_field(name="?help", value="Shows this help message.", inline=False)
     embed.set_footer(text=f"Made by GyroXI#7548 & Tic#0001 | {client.user.name}")
 
     await ctx.send(embed=embed)
+
 
 client.run('NzM2MTU4Mjc1NDY0MjAwMjA1.Xxqu0g.owKc5W59Y4-B8OPxMiau06EhjUM')
